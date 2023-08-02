@@ -1,15 +1,17 @@
-/* TinyI2C v2.0.1
+/* TinierI2C v2.0.1
 
    David Johnson-Davies - www.technoblogy.com - 5th June 2022
    
    CC BY 4.0
    Licensed under a Creative Commons Attribution 4.0 International license: 
    http://creativecommons.org/licenses/by/4.0/
+
+   Edited by Martin Marcinčák into TinierI2C v2.0.2
 */
 
 #include "TinierI2CMaster.h"
 
-TinyI2CMaster::TinyI2CMaster() {
+TinierI2CMaster::TinierI2CMaster() {
 }
 
 #if defined(USIDR)
@@ -39,7 +41,7 @@ unsigned char const USISR_8bit = 1<<USISIF | 1<<USIOIF | 1<<USIPF | 1<<USIDC | 0
 // Prepare register value to: Clear flags, and set USI to shift 1 bit i.e. count 2 clock edges.
 unsigned char const USISR_1bit = 1<<USISIF | 1<<USIOIF | 1<<USIPF | 1<<USIDC | 0xE<<USICNT0;
 
-uint8_t TinyI2CMaster::transfer (uint8_t data) {
+uint8_t TinierI2CMaster::transfer (uint8_t data) {
   USISR = data;                                                   // Set USISR according to data.
                                                                   // Prepare clocking.
   data = 0<<USISIE | 0<<USIOIE |                                  // Interrupts disabled
@@ -62,7 +64,7 @@ uint8_t TinyI2CMaster::transfer (uint8_t data) {
   return data;                                                    // Return the data from the USIDR
 }
 
-void TinyI2CMaster::init () {
+void TinierI2CMaster::init () {
   PORT_USI |= 1<<PIN_USI_SDA;                                     // Enable pullup on SDA.
   PORT_USI_CL |= 1<<PIN_USI_SCL;                                  // Enable pullup on SCL.
 
@@ -78,40 +80,40 @@ void TinyI2CMaster::init () {
           0x0<<USICNT0;                                           // and reset counter.
 }
 
-uint8_t TinyI2CMaster::read (void) {
+uint8_t TinierI2CMaster::read (void) {
   if ((I2Ccount != 0) && (I2Ccount != -1)) I2Ccount--;
   
   /* Read a byte */
   DDR_USI &= ~(1<<PIN_USI_SDA);                                   // Enable SDA as input.
-  uint8_t data = TinyI2CMaster::transfer(USISR_8bit);
+  uint8_t data = TinierI2CMaster::transfer(USISR_8bit);
 
   /* Prepare to generate ACK (or NACK in case of End Of Transmission) */
   if (I2Ccount == 0) USIDR = 0xFF; else USIDR = 0x00;
-  TinyI2CMaster::transfer(USISR_1bit);                            // Generate ACK/NACK.
+  TinierI2CMaster::transfer(USISR_1bit);                            // Generate ACK/NACK.
 
   return data;                                                    // Read successfully completed
 }
 
-uint8_t TinyI2CMaster::readLast (void) {
+uint8_t TinierI2CMaster::readLast (void) {
   I2Ccount = 0;
-  return TinyI2CMaster::read();
+  return TinierI2CMaster::read();
 }
 
-bool TinyI2CMaster::write (uint8_t data) {
+bool TinierI2CMaster::write (uint8_t data) {
   /* Write a byte */
   PORT_USI_CL &= ~(1<<PIN_USI_SCL);                               // Pull SCL LOW.
   USIDR = data;                                                   // Setup data.
-  TinyI2CMaster::transfer(USISR_8bit);                            // Send 8 bits on bus.
+  TinierI2CMaster::transfer(USISR_8bit);                            // Send 8 bits on bus.
 
   /* Clock and verify (N)ACK from slave */
   DDR_USI &= ~(1<<PIN_USI_SDA);                                   // Enable SDA as input.
-  if (TinyI2CMaster::transfer(USISR_1bit) & 1<<TWI_NACK_BIT) return false;
+  if (TinierI2CMaster::transfer(USISR_1bit) & 1<<TWI_NACK_BIT) return false;
 
   return true;                                                    // Write successfully completed
 }
 
 // Start transmission by sending address
-bool TinyI2CMaster::start (uint8_t address, int32_t readcount) {
+bool TinierI2CMaster::start (uint8_t address, int32_t readcount) {
   if (readcount != 0) { I2Ccount = readcount; readcount = 1; }
   uint8_t addressRW = address<<1 | readcount;
 
@@ -135,20 +137,20 @@ bool TinyI2CMaster::start (uint8_t address, int32_t readcount) {
   /*Write address */
   PORT_USI_CL &= ~(1<<PIN_USI_SCL);                               // Pull SCL LOW.
   USIDR = addressRW;                                              // Setup data.
-  TinyI2CMaster::transfer(USISR_8bit);                            // Send 8 bits on bus.
+  TinierI2CMaster::transfer(USISR_8bit);                            // Send 8 bits on bus.
 
   /* Clock and verify (N)ACK from slave */
   DDR_USI &= ~(1<<PIN_USI_SDA);                                   // Enable SDA as input.
-  if (TinyI2CMaster::transfer(USISR_1bit) & 1<<TWI_NACK_BIT) return false; // No ACK
+  if (TinierI2CMaster::transfer(USISR_1bit) & 1<<TWI_NACK_BIT) return false; // No ACK
 
   return true;                                                    // Start successfully completed
 }
 
-bool TinyI2CMaster::restart(uint8_t address, int32_t readcount) {
-  return TinyI2CMaster::start(address, readcount);
+bool TinierI2CMaster::restart(uint8_t address, int32_t readcount) {
+  return TinierI2CMaster::start(address, readcount);
 }
 
-void TinyI2CMaster::stop (void) {
+void TinierI2CMaster::stop (void) {
   PORT_USI &= ~(1<<PIN_USI_SDA);                                  // Pull SDA low.
   PORT_USI_CL |= 1<<PIN_USI_SCL;                                  // Release SCL.
   while (!(PIN_USI_CL & 1<<PIN_USI_SCL));                         // Wait for SCL to go high.
@@ -182,7 +184,7 @@ uint8_t const TWSR_REP_START = 0x10;
 uint8_t const I2C_READ = 1;
 uint8_t const I2C_WRITE = 0;
 
-void TinyI2CMaster::init () {
+void TinierI2CMaster::init () {
   /* PULLUPS NOT ENABLED IN LIBRARY TO ENSURE COMPATIBILITY - PLEASE CONFIGURE THEM MANUALLY IF NEEDED
   digitalWrite(SDA, HIGH);                                        // Pullups on
   digitalWrite(SCL, HIGH);
@@ -191,19 +193,19 @@ void TinyI2CMaster::init () {
   TWBR = (F_CPU/F_TWI - 16)/2;                                    // Set bit rate factor
 }
 
-uint8_t TinyI2CMaster::read (void) {
+uint8_t TinierI2CMaster::read (void) {
   if (I2Ccount != 0) I2Ccount--;
   TWCR = 1<<TWINT | 1<<TWEN | ((I2Ccount == 0) ? 0 : (1<<TWEA));
   while (!(TWCR & 1<<TWINT));
   return TWDR;
 }
 
-uint8_t TinyI2CMaster::readLast (void) {
+uint8_t TinierI2CMaster::readLast (void) {
   I2Ccount = 0;
-  return TinyI2CMaster::read();
+  return TinierI2CMaster::read();
 }
 
-bool TinyI2CMaster::write (uint8_t data) {
+bool TinierI2CMaster::write (uint8_t data) {
   TWDR = data;
   TWCR = 1<<TWINT | 1 << TWEN;
   while (!(TWCR & 1<<TWINT));
@@ -211,7 +213,7 @@ bool TinyI2CMaster::write (uint8_t data) {
 }
 
 // Start transmission by sending address
-bool TinyI2CMaster::start (uint8_t address, int32_t readcount) {
+bool TinierI2CMaster::start (uint8_t address, int32_t readcount) {
   bool read;
   if (readcount == 0) read = 0;                                   // Write
   else { I2Ccount = readcount; read = 1; }                        // Read
@@ -226,11 +228,11 @@ bool TinyI2CMaster::start (uint8_t address, int32_t readcount) {
   else return (TWSR & 0xF8) == TWSR_MTX_ADR_ACK;
 }
 
-bool TinyI2CMaster::restart(uint8_t address, int32_t readcount) {
-  return TinyI2CMaster::start(address, readcount);
+bool TinierI2CMaster::restart(uint8_t address, int32_t readcount) {
+  return TinierI2CMaster::start(address, readcount);
 }
 
-void TinyI2CMaster::stop (void) {
+void TinierI2CMaster::stop (void) {
   TWCR = 1<<TWINT | 1<<TWEN | 1<<TWSTO;
   while (TWCR & 1<<TWSTO); // wait until stop and bus released
 }
@@ -252,7 +254,7 @@ uint32_t const T_RISE = 300L;                                     // Rise time
 //uint32_t const FREQUENCY = 1000000L;                            // Hardware I2C clock in Hz
 //uint32_t const T_RISE = 120L;                                   // Rise time
 
-void TinyI2CMaster::init () {
+void TinierI2CMaster::init () {
 #if !defined(DXCORE)
   /* PULLUPS NOT ENABLED IN LIBRARY TO ENSURE COMPATIBILITY - PLEASE CONFIGURE THEM MANUALLY IF NEEDED
   pinMode(PIN_WIRE_SDA, INPUT_PULLUP);                            // Pullups on unless AVR DA/DB
@@ -265,7 +267,7 @@ void TinyI2CMaster::init () {
   TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
 }
 
-uint8_t TinyI2CMaster::read (void) {
+uint8_t TinierI2CMaster::read (void) {
   if (I2Ccount != 0) I2Ccount--;
   while (!(TWI0.MSTATUS & TWI_RIF_bm));                           // Wait for read interrupt flag
   uint8_t data = TWI0.MDATA;
@@ -275,12 +277,12 @@ uint8_t TinyI2CMaster::read (void) {
   return data;
 }
 
-uint8_t TinyI2CMaster::readLast (void) {
+uint8_t TinierI2CMaster::readLast (void) {
   I2Ccount = 0;
-  return TinyI2CMaster::read();
+  return TinierI2CMaster::read();
 }
 
-bool TinyI2CMaster::write (uint8_t data) {
+bool TinierI2CMaster::write (uint8_t data) {
   TWI0.MCTRLB = TWI_MCMD_RECVTRANS_gc;                            // Prime transaction
   TWI0.MDATA = data;                                              // Send data
   while (!(TWI0.MSTATUS & TWI_WIF_bm));                           // Wait for write to complete
@@ -289,7 +291,7 @@ bool TinyI2CMaster::write (uint8_t data) {
 }
 
 // Start transmission by sending address
-bool TinyI2CMaster::start (uint8_t address, int32_t readcount) {
+bool TinierI2CMaster::start (uint8_t address, int32_t readcount) {
   bool read;
   if (readcount == 0) read = 0;                                   // Write
   else { I2Ccount = readcount; read = 1; }                        // Read
@@ -306,11 +308,11 @@ bool TinyI2CMaster::start (uint8_t address, int32_t readcount) {
   return true;                                                    // Return true if slave gave an ACK
 }
 
-bool TinyI2CMaster::restart(uint8_t address, int32_t readcount) {
-  return TinyI2CMaster::start(address, readcount);
+bool TinierI2CMaster::restart(uint8_t address, int32_t readcount) {
+  return TinierI2CMaster::start(address, readcount);
 }
 
-void TinyI2CMaster::stop (void) {
+void TinierI2CMaster::stop (void) {
   TWI0.MCTRLB |= TWI_MCMD_STOP_gc;                                // Send STOP
   while (!(TWI0.MSTATUS & TWI_BUSSTATE_IDLE_gc));                 // Wait for bus to return to idle state
 }
@@ -321,4 +323,4 @@ void TinyI2CMaster::stop (void) {
 
 // All versions
 
-TinyI2CMaster TinyI2C = TinyI2CMaster();                          // Instantiate a TinyI2C object
+TinierI2CMaster TinierI2C = TinierI2CMaster();                          // Instantiate a TinierI2C object

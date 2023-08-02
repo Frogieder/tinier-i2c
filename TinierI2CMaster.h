@@ -5,6 +5,8 @@
    CC BY 4.0
    Licensed under a Creative Commons Attribution 4.0 International license: 
    http://creativecommons.org/licenses/by/4.0/
+   
+   Edited by Martin Marcinčák into TinierI2C v2.0.2
 */
 
 #ifndef TinierI2CMaster_h
@@ -14,10 +16,10 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-class TinyI2CMaster {
+class TinierI2CMaster {
 
 public:
-  TinyI2CMaster();
+  TinierI2CMaster();
   void init(void);
   uint8_t read(void);
   uint8_t readLast(void);
@@ -31,7 +33,7 @@ private:
   uint8_t transfer(uint8_t data);
 };
 
-extern TinyI2CMaster TinierI2C; // Only renamed here, internal naming remains unchanged
+extern TinierI2CMaster TinierI2C;
 
 #endif
 
