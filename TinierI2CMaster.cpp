@@ -7,7 +7,7 @@
    http://creativecommons.org/licenses/by/4.0/
 */
 
-#include "TinyI2CMaster.h"
+#include "TinierI2CMaster.h"
 
 TinyI2CMaster::TinyI2CMaster() {
 }
@@ -183,8 +183,10 @@ uint8_t const I2C_READ = 1;
 uint8_t const I2C_WRITE = 0;
 
 void TinyI2CMaster::init () {
+  /* PULLUPS NOT ENABLED IN LIBRARY TO ENSURE COMPATIBILITY - PLEASE CONFIGURE THEM MANUALLY IF NEEDED
   digitalWrite(SDA, HIGH);                                        // Pullups on
   digitalWrite(SCL, HIGH);
+   */
   TWSR = 0;                                                       // No prescaler
   TWBR = (F_CPU/F_TWI - 16)/2;                                    // Set bit rate factor
 }
@@ -252,8 +254,10 @@ uint32_t const T_RISE = 300L;                                     // Rise time
 
 void TinyI2CMaster::init () {
 #if !defined(DXCORE)
+  /* PULLUPS NOT ENABLED IN LIBRARY TO ENSURE COMPATIBILITY - PLEASE CONFIGURE THEM MANUALLY IF NEEDED
   pinMode(PIN_WIRE_SDA, INPUT_PULLUP);                            // Pullups on unless AVR DA/DB
   pinMode(PIN_WIRE_SCL, INPUT_PULLUP);
+  */
 #endif
   uint32_t baud = ((F_CPU/FREQUENCY) - (((F_CPU*T_RISE)/1000)/1000)/1000 - 10)/2;
   TWI0.MBAUD = (uint8_t)baud;
@@ -312,7 +316,7 @@ void TinyI2CMaster::stop (void) {
 }
 
 #else
-#error "Sorry TinyI2C doesn't support this processor"
+#error "Sorry TinyI2C doesn't support this processor, nor does its tinier child"
 #endif
 
 // All versions

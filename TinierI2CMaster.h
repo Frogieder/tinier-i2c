@@ -7,11 +7,10 @@
    http://creativecommons.org/licenses/by/4.0/
 */
 
-#ifndef TinyI2CMaster_h
-#define TinyI2CMaster_h
+#ifndef TinierI2CMaster_h
+#define TinierI2CMaster_h
 
 #include <stdint.h>
-#include <Arduino.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -32,7 +31,7 @@ private:
   uint8_t transfer(uint8_t data);
 };
 
-extern TinyI2CMaster TinyI2C;
+extern TinyI2CMaster TinierI2C; // Only renamed here, internal naming remains unchanged
 
 #endif
 

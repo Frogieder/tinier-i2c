@@ -1,4 +1,11 @@
-# TinyI2C Library
+# TinierI2C Library
+
+**Tinier I2C** is a slight modification of TinyI2C library, which allows it to work without the need of Arduino framework.
+This is especially useful when you're trying to achieve minimum program size, since the framework uses quite some memory.
+
+A tiny downside of this modification is that it cannot automatically initialize pullups, this must be done manually.
+
+## Tiny I2C Library
 
 **TinyI2C** is a set of minimal I2C routines that allow just about any Microchip/Atmel AVR processor to connect to I2C peripherals.
 
