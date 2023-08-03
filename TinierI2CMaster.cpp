@@ -1,12 +1,13 @@
-/* TinierI2C v2.0.1
+/* TinierI2C v2.0.2
 
+   Edited by Martin Marcinčák into TinierI2C
+
+   Original TinyI2C was created by
    David Johnson-Davies - www.technoblogy.com - 5th June 2022
    
    CC BY 4.0
    Licensed under a Creative Commons Attribution 4.0 International license: 
    http://creativecommons.org/licenses/by/4.0/
-
-   Edited by Martin Marcinčák into TinierI2C v2.0.2
 */
 
 #include "TinierI2CMaster.h"
