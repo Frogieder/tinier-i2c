@@ -5,6 +5,8 @@ This is especially useful when you're trying to achieve minimum program size, si
 
 A tiny downside of this modification is that it cannot automatically initialize pullups, this must be done manually.
 
+**Manual configuration** is also needed in `TinierI2CMaster.h`, where the right platform must be chosen.
+
 ## Tiny I2C Library
 
 **TinyI2C** is a set of minimal I2C routines that allow just about any Microchip/Atmel AVR processor to connect to I2C peripherals.

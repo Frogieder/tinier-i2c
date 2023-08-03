@@ -16,6 +16,13 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+/* CHOOSE THE ONE THAT APPLIES */
+//#define USIDR
+//#define TWDR
+//#define DXCORE
+#define MEGATINYCORE
+//#define MEGACOREX
+
 class TinierI2CMaster {
 
 public:
